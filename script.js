@@ -41,7 +41,7 @@ function translateValue(value) {
 function getStoredLanguage() {
   try {
     return localStorage.getItem("creepLabLanguage");
-  } catch {
+  } catch (error) {
     return null;
   }
 }
@@ -49,7 +49,7 @@ function getStoredLanguage() {
 function setStoredLanguage(lang) {
   try {
     localStorage.setItem("creepLabLanguage", lang);
-  } catch {
+  } catch (error) {
     // Some mobile in-app browsers block storage; language switching should still work.
   }
 }
@@ -90,7 +90,7 @@ function getYouTubeId(url) {
     }
 
     return parsed.searchParams.get("v");
-  } catch {
+  } catch (error) {
     return null;
   }
 }
