@@ -1,3 +1,5 @@
+document.documentElement.classList.add("js");
+
 const header = document.querySelector("[data-header]");
 const menuToggle = document.querySelector("[data-menu-toggle]");
 const menu = document.querySelector("[data-menu]");
@@ -36,6 +38,22 @@ function translateValue(value) {
   return value.replace("{year}", currentYear);
 }
 
+function getStoredLanguage() {
+  try {
+    return localStorage.getItem("creepLabLanguage");
+  } catch {
+    return null;
+  }
+}
+
+function setStoredLanguage(lang) {
+  try {
+    localStorage.setItem("creepLabLanguage", lang);
+  } catch {
+    // Some mobile in-app browsers block storage; language switching should still work.
+  }
+}
+
 function applyLanguage(lang) {
   const nextLang = lang === "th" ? "th" : "en";
 
@@ -59,7 +77,7 @@ function applyLanguage(lang) {
     button.setAttribute("aria-pressed", String(button.dataset.lang === nextLang));
   });
 
-  localStorage.setItem("creepLabLanguage", nextLang);
+  setStoredLanguage(nextLang);
   setMenu(false);
 }
 
@@ -90,19 +108,23 @@ portfolioCards.forEach((card) => {
   }
 });
 
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("in-view");
-        observer.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.14, rootMargin: "0px 0px -50px 0px" }
-);
+if ("IntersectionObserver" in window) {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in-view");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.14, rootMargin: "0px 0px -50px 0px" }
+  );
 
-revealItems.forEach((item) => observer.observe(item));
+  revealItems.forEach((item) => observer.observe(item));
+} else {
+  revealItems.forEach((item) => item.classList.add("in-view"));
+}
 
 menuToggle.addEventListener("click", () => {
   setMenu(!menu.classList.contains("is-open"));
@@ -125,7 +147,11 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-const savedLanguage = localStorage.getItem("creepLabLanguage");
+document.querySelectorAll("[data-year]").forEach((element) => {
+  element.textContent = currentYear;
+});
+
+const savedLanguage = getStoredLanguage();
 const browserLanguage = navigator.language.toLowerCase().startsWith("th") ? "th" : "en";
 
 applyLanguage(savedLanguage || browserLanguage);
